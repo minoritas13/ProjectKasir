@@ -33,7 +33,8 @@ CREATE TABLE `kasir` (
   `kode_barang` varchar(50) DEFAULT NULL,
   `harga_barang` decimal(10,2) DEFAULT NULL,
   `stok` int DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 
 --
 -- Dumping data untuk tabel `kasir`
