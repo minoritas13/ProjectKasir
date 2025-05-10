@@ -1,46 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title><%= title %></title>
+  <meta charset="UTF-8">
+  <title><%= title %></title>
 </head>
 <body>
-    <h1><%= title %></h1>
 
-    <form action="/search" method="post">
-        <label for="nama_gedung">Masukkan ID barang:</label>
-        <div>
-            <input type="text" name="namaBarang">
-        </div>
-        <button type="submit">Cari</button>
-    </form>
+  <h1><%= title %></h1>
 
-    <h2>Daftar Barang:</h2>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Nama Barang</th>
-                <th>Harga</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% if (data.length === 0) { %>
-                <tr>
-                    <td colspan="2">Data tidak ditemukan</td>
-                </tr>
-            <% } else { %>
-                <% data.forEach(item => { %>
-                    <tr>
-                        <td><%= item.nama_barang %></td>
-                        <td><%= item.harga_barang %></td>
-                    </tr>
-                <% }) %>
-            <% } %>
-            <tr>
-                <th>Total</th>
-                <th><%= total %></th>
-            </tr>
-        </tbody>
+  <!-- Form tambah barang -->
+  <form action="/tambah-barang" method="POST">
+    <label for="nama_barang">Nama Barang:</label>
+    <input type="text" name="nama_barang" id="nama_barang" required>
+
+    <label for="jumlah">Jumlah:</label>
+    <input type="number" name="jumlah" id="jumlah" required>
+
+    <button type="submit">Tambah ke Keranjang</button>
+  </form>
+
+  <% if (typeof keranjang !== "undefined" && keranjang.length > 0) { %>
+    <h2>Keranjang Belanja</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nama Barang</th>
+          <th>Harga Satuan</th>
+          <th>Jumlah</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% keranjang.forEach(item => { %>
+          <tr>
+            <td><%= item.nama_barang %></td>
+            <td>Rp <%= item.harga_barang.toLocaleString() %></td>
+            <td><%= item.jumlah %></td>
+            <td>Rp <%= item.total.toLocaleString() %></td>
+          </tr>
+        <% }); %>
+      </tbody>
     </table>
+
+    <h3>Total Belanja: Rp <%= total.toLocaleString() %></h3>
+  <% } %>
+
 </body>
 </html>

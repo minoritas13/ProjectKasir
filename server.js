@@ -17,51 +17,56 @@ const con = mysql.createConnection({
   password: "",
   database: "my_db"
 });
-
+ 
 con.connect((err) => {
   if (err) throw err;
   console.log("Koneksi database berhasil");
 });
 
-// Halaman utama - tampilkan semua data dari tabel kasir
 app.get("/", (req, res) => {
-  const query = "SELECT * FROM kasir";
-  con.query(query, (err, results) => {
-    if (err) throw err;
-    const data = JSON.parse(JSON.stringify(results));
-
-    const totalHarga = data.reduce((acc, item) => acc + item.harga, 0);
-
-    res.render("index", { data: data, 
-      title: "Selamat datang di aplikasi kasir",
-      data: data, 
-      total: totalHarga,
-    });
-  });
-
-});
-
-// Proses pencarian berdasarkan kode_barang
-app.post("/search", (req, res) => {
-  const kode = req.body.namaBarang;
-  const query = "SELECT * FROM kasir WHERE kode_barang LIKE ?";
-  con.query(query, [`%${kode}%`], (err, results) => {
-    if (err) throw err;
-
-    const data = JSON.parse(JSON.stringify(results));
-
-    // Hitung total harga dari hasil pencarian
-    const totalHarga = data.reduce((acc, item) => acc + item.harga, 0);
-
     res.render("index", { 
-      data: data, 
-      total: totalHarga,
-      title: `Hasil pencarian untuk kode: ${kode}` 
+      title: "Selamat datang di aplikasi", 
     });
+});
 
+const keranjang = [];
+
+app.post("/tambah-barang", (req, res) => {
+  const { nama_barang, jumlah } = req.body;
+  const qty = parseInt(jumlah);
+
+  // Ambil harga dari database berdasarkan nama_barang
+  const query = "SELECT harga_barang FROM kasir WHERE nama_barang = ?";
+  con.query(query, [nama_barang], (err, results) => {
+    if (err) throw err;
+
+    if (results.length > 0) {
+      const harga = parseFloat(results[0].harga_barang);
+
+      // Simpan ke array keranjang
+      keranjang.push({
+        nama_barang,
+        harga_barang: harga,
+        jumlah: qty,
+        total: harga * qty
+      });
+
+      res.redirect("/keranjang");
+    } else {
+      res.send("Barang tidak ditemukan di database.");
+    }
   });
 });
 
+
+app.get("/keranjang", (req, res) => {
+  const totalSemua = keranjang.reduce((sum, item) => sum + item.total, 0);
+  res.render("index", {
+    keranjang,
+    total: totalSemua,
+    title: "Keranjang Belanja"
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
