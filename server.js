@@ -1,9 +1,11 @@
 const mysql = require('mysql2');
 const express = require('express');
 const bodyparser = require('body-parser');
+require('dotenv').config();
 
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
+
 
 app.use(bodyparser.urlencoded({ extended: true }));
 
