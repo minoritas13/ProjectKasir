@@ -6,47 +6,47 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-
 app.use(bodyparser.urlencoded({ extended: true }));
-
 app.set("view engine", "ejs");
 app.set("views", "views");
 
-// Koneksi ke database
 const con = mysql.createConnection({
   host: process.env.DB_HOST,
+  port: 3306,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME
 });
 
- 
 con.connect((err) => {
-  if (err) throw err;
-  console.log("Koneksi database berhasil");
-});
-
-app.get("/", (req, res) => {
-    res.render("index", { 
-      title: "Selamat datang di aplikasi", 
-    });
+  if (err) {
+    console.error("Koneksi database gagal:", err.message);
+  } else {
+    console.log("Koneksi database berhasil");
+  }
 });
 
 const keranjang = [];
+
+app.get("/", (req, res) => {
+  res.render("index", { 
+    title: "Selamat datang di aplikasi",
+    keranjang: [],
+    total: 0
+  });
+});
 
 app.post("/tambah-barang", (req, res) => {
   const { nama_barang, jumlah } = req.body;
   const qty = parseInt(jumlah);
 
-  // Ambil harga dari database berdasarkan nama_barang
   const query = "SELECT harga_barang FROM kasir WHERE nama_barang = ?";
   con.query(query, [nama_barang], (err, results) => {
-    if (err) throw err;
+    if (err) return res.send("Gagal mengambil data: " + err.message);
 
     if (results.length > 0) {
       const harga = parseFloat(results[0].harga_barang);
 
-      // Simpan ke array keranjang
       keranjang.push({
         nama_barang,
         harga_barang: harga,
@@ -60,7 +60,6 @@ app.post("/tambah-barang", (req, res) => {
     }
   });
 });
-
 
 app.get("/keranjang", (req, res) => {
   const totalSemua = keranjang.reduce((sum, item) => sum + item.total, 0);
