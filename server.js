@@ -28,11 +28,26 @@ con.connect((err) => {
 
 const keranjang = [];
 
+function hitungDiskon(total) {
+  let diskon = 0;
+
+  if (total >= 100000) {
+    diskon = total * 0.10; // 10%
+  } else if (total >= 50000) {
+    diskon = total * 0.05; // 5%
+  }
+
+  const totalSetelahDiskon = total - diskon;
+
+  return {
+    diskon,
+    totalSetelahDiskon
+  };
+}
+
 app.get("/", (req, res) => {
   res.render("index", { 
     title: "Selamat datang di aplikasi",
-    keranjang: [],
-    total: 0
   });
 });
 
@@ -42,7 +57,7 @@ app.post("/tambah-barang", (req, res) => {
 
   const query = "SELECT harga_barang FROM kasir WHERE nama_barang = ?";
   con.query(query, [nama_barang], (err, results) => {
-    if (err) return res.send("Gagal mengambil data: " + err.message);
+    if (err) return res.send(" Gagal mengambil data: " + err.message);
 
     if (results.length > 0) {
       const harga = parseFloat(results[0].harga_barang);
@@ -63,22 +78,21 @@ app.post("/tambah-barang", (req, res) => {
 
 app.get("/keranjang", (req, res) => {
   const totalSemua = keranjang.reduce((sum, item) => sum + item.total, 0);
-
-  let diskon = 0;
-  if (totalSemua >= 100000) {
-    diskon = totalSemua * 0.10; // 10%
-  } else if (totalSemua >= 50000) {
-    diskon = totalSemua * 0.05; // 5%
-  }
-
-  const totalSetelahDiskon = totalSemua - diskon;
+  const {totalSetelahDiskon} = hitungDiskon(totalSemua);
 
   res.render("index", {
     keranjang,
     total: totalSetelahDiskon,
     title: "Keranjang Belanja"
   });
+
 });
+
+app.get("/keranjang/reset", (req, res) => {
+  keranjang.length = 0;
+  res.redirect("/keranjang");
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
