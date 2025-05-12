@@ -63,9 +63,19 @@ app.post("/tambah-barang", (req, res) => {
 
 app.get("/keranjang", (req, res) => {
   const totalSemua = keranjang.reduce((sum, item) => sum + item.total, 0);
+
+  let diskon = 0;
+  if (totalSemua >= 100000) {
+    diskon = totalSemua * 0.10; // 10%
+  } else if (totalSemua >= 50000) {
+    diskon = totalSemua * 0.05; // 5%
+  }
+
+  const totalSetelahDiskon = totalSemua - diskon;
+
   res.render("index", {
     keranjang,
-    total: totalSemua,
+    total: totalSetelahDiskon,
     title: "Keranjang Belanja"
   });
 });
