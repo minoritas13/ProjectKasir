@@ -28,7 +28,7 @@ con.connect((err) => {
 
 const keranjang = [];
 
-function hitungDiskon(total) {
+hitungDiskon = (total) => {
   let diskon = 0;
 
   if (total >= 100000) {
